@@ -1,0 +1,12 @@
+# Large or third-party material that stays local
+/listening/
+/*.pdf
+/01_covost2_manifest.ipynb
+
+# Build and editor leftovers
+__pycache__/
+*.pyc
+report/preview/
+*.wav
+*.mp3
+.ipynb_checkpoints/

@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Effect of Chinese ASR Errors on Chinese-to-English Machine Translation</title>
+<style>
+@page { size: A4; margin: 22mm 20mm 22mm 20mm; @bottom-center { content: counter(page); font: 9pt "Segoe UI", system-ui, sans-serif; color: #6b6b66; } }
+@page :first { @bottom-center { content: none; } }
+:root { --ink:#1d1d1b; --ink2:#52514e; --mute:#898781; --line:#d9d8d1; --accent:#2a78d6; --soft:#f4f4f0; }
+* { box-sizing: border-box; }
+body { font: 10.4pt/1.52 "Segoe UI", system-ui, sans-serif; color: var(--ink); margin: 0; }
+h1, h2, h3 { font-family: "Segoe UI", system-ui, sans-serif; color: var(--ink); line-height: 1.25; }
+h1 { font-size: 17pt; margin: 0 0 10pt; padding-bottom: 5pt; border-bottom: 2px solid var(--accent); page-break-before: always; }
+h1.nobreak { page-break-before: auto; }
+h2, h3, caption { break-after: avoid; page-break-after: avoid; }
+table.long { page-break-inside: auto; } table.long tr { page-break-inside: avoid; }
+table.long thead { display: table-header-group; }
+table.tight { font-size: 8.2pt; } table.tight th, table.tight td { padding: 3pt 4pt; }
+h2 { font-size: 12.5pt; margin: 16pt 0 5pt; }
+h3 { font-size: 11pt; margin: 12pt 0 4pt; color: var(--ink2); }
+p { margin: 0 0 7pt; text-align: justify; hyphens: auto; }
+ul, ol { margin: 0 0 8pt; padding-left: 18pt; } li { margin-bottom: 3pt; }
+table { border-collapse: collapse; width: 100%; margin: 7pt 0 4pt; font-size: 9.2pt; page-break-inside: avoid; }
+th { background: var(--soft); text-align: left; font-weight: 600; }
+th, td { border: 1px solid var(--line); padding: 4pt 6pt; vertical-align: top; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+caption { caption-side: top; text-align: left; font-weight: 600; font-size: 9.5pt; padding-bottom: 3pt; color: var(--ink2); }
+figure { margin: 10pt 0; text-align: center; page-break-inside: avoid; }
+figure img { max-width: 100%; }
+figcaption { font-size: 9pt; color: var(--ink2); text-align: left; margin-top: 3pt; }
+code { font: 9pt Consolas, "Courier New", monospace; background: var(--soft); padding: 0 2pt; border-radius: 2pt; }
+.zh { font-family: "Microsoft YaHei", "Noto Sans CJK SC", "SimSun", sans-serif; }
+.note { background: var(--soft); border-left: 3px solid var(--accent); padding: 6pt 9pt; margin: 8pt 0; font-size: 9.6pt; page-break-inside: avoid; }
+.cover { height: 245mm; display: flex; flex-direction: column; justify-content: space-between; }
+.cover .t { margin-top: 38mm; }
+.cover .org { font-size: 11pt; color: var(--ink2); letter-spacing: .04em; text-transform: uppercase; }
+.cover h1.title { font-size: 25pt; border: 0; page-break-before: auto; margin: 8pt 0 8pt; padding: 0; line-height: 1.2; }
+.cover .sub { font-size: 13pt; color: var(--ink2); }
+.cover table { width: 100%; font-size: 10.5pt; margin: 0; } .cover td { border: 0; border-bottom: 1px solid var(--line); padding: 7pt 4pt; }
+.cover td:first-child { width: 32%; color: var(--ink2); }
+.toc { list-style: none; padding: 0; } .toc li { display: flex; margin: 3pt 0; } .toc .l { flex: 0 1 auto; } .toc .d { flex: 1; border-bottom: 1px dotted var(--mute); margin: 0 4pt 4pt; } .toc a { color: var(--ink); text-decoration: none; }
+.toc li.sub { padding-left: 16pt; font-size: 9.6pt; color: var(--ink2); }
+.pipe { display: grid; grid-template-columns: 1fr 18pt 1fr 18pt 1fr; gap: 6pt 0; align-items: stretch; margin: 8pt 0; }
+.pipe .b { border: 1px solid var(--line); border-radius: 6pt; padding: 6pt 8pt; background: #fff; font-size: 8.8pt; }
+.pipe .b b { display: block; font-size: 9.4pt; margin-bottom: 2pt; color: var(--accent); }
+.pipe .a { align-self: center; text-align: center; color: var(--mute); font-size: 13pt; }
+.small { font-size: 9pt; color: var(--ink2); }
+.kpi { display: flex; gap: 8pt; margin: 8pt 0; } .kpi div { flex: 1; border: 1px solid var(--line); border-radius: 6pt; padding: 6pt 8pt; text-align: center; page-break-inside: avoid; }
+.kpi b { display: block; font-size: 15pt; color: var(--accent); } .kpi span { font-size: 8.6pt; color: var(--ink2); }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<div class="cover">
+  <div class="t">
+    <div class="org">Defence Research and Development Organisation &middot; Internship Project Report</div>
+    <h1 class="title">Effect of Chinese Speech-Recognition Errors on Chinese-to-English Machine Translation</h1>
+    <div class="sub">A cascaded ASR&rarr;MT evaluation study using Whisper large-v3, Paraformer-zh and TowerInstruct-7B</div>
+  </div>
+  <div>
+    <table>
+      <tr><td>Prepared by</td><td>[ Intern name ]</td></tr>
+      <tr><td>Project guide</td><td>[ Guide name and designation ]</td></tr>
+      <tr><td>Laboratory / Division</td><td>[ Laboratory / division ]</td></tr>
+      <tr><td>Internship period</td><td>[ Start date &ndash; end date ]</td></tr>
+      <tr><td>Report date</td><td>27 October 2026</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============ ABSTRACT + TOC ============ -->
+<h1 class="nobreak" style="page-break-before: always;">Abstract</h1>
+<p>Speech translation systems that chain automatic speech recognition (ASR) and machine translation (MT) pass every recognition error on to the translator. This project measures, for Mandarin Chinese to English, how much translation quality is lost when the MT model receives ASR transcripts instead of correct text, and which kinds of recognition errors do the damage.</p>
+<p>We assembled 849 Chinese&ndash;English sentence pairs from CoVoST&nbsp;2 and FLEURS, synthesised speech for the Chinese sentences with Edge-TTS, transcribed it with two ASR systems (Whisper large-v3 and Paraformer-zh), translated the transcripts with TowerInstruct-7B-v0.2, and scored the output against the English references with BLEU, chrF++ and COMET-22. One TTS clip was defective and was excluded, leaving 848 clips.</p>
+<p>The character error rate (CER) is 6.57% for Whisper and 6.27% for Paraformer. Compared with translating the correct Chinese text, ASR errors cost 3.6&ndash;4.3 BLEU, 3.3&ndash;3.6 chrF++ and 0.030&ndash;0.037 COMET. About half of the clips are transcribed exactly and lose almost nothing; for Whisper, the 20% of clips with CER above 15% account for roughly 62% of the total translation loss. A manual review of the 40 worst cases shows that single-character homophone errors in rare names and technical terms dominate, followed by mangled foreign names, missing punctuation and a few whole-clip failures. The results are compared with two recent papers on context-aware and retrieval-augmented translation, which suggest concrete mitigations (conversational context, quality-aware decoding and terminology retrieval), and the report closes with limitations and future work.</p>
+
+<div class="kpi">
+  <div><b>848</b><span>clips evaluated<br>(849 built, 1 excluded)</span></div>
+  <div><b>6.57% / 6.27%</b><span>CER<br>Whisper / Paraformer</span></div>
+  <div><b>&minus;3.6 / &minus;4.3</b><span>BLEU vs clean text<br>Whisper / Paraformer</span></div>
+  <div><b>&minus;0.037 / &minus;0.030</b><span>COMET vs clean text<br>Whisper / Paraformer</span></div>
+</div>
+
+<h1>Contents</h1>
+<ul class="toc">
+  <li><span class="l"><a href="#s1">1. Problem statement</a></span><span class="d"></span><span>{{pg:s1}}</span></li>
+  <li><span class="l"><a href="#s2">2. Datasets used</a></span><span class="d"></span><span>{{pg:s2}}</span></li>
+  <li><span class="l"><a href="#s3">3. Models used and system built</a></span><span class="d"></span><span>{{pg:s3}}</span></li>
+  <li><span class="l"><a href="#s4">4. Methodology implemented</a></span><span class="d"></span><span>{{pg:s4}}</span></li>
+  <li><span class="l"><a href="#s5">5. Results</a></span><span class="d"></span><span>{{pg:s5}}</span></li>
+  <li><span class="l"><a href="#s6">6. Analysis</a></span><span class="d"></span><span>{{pg:s6}}</span></li>
+  <li><span class="l"><a href="#s7">7. Comparison with the reference papers</a></span><span class="d"></span><span>{{pg:s7}}</span></li>
+  <li><span class="l"><a href="#s8">8. Limitations</a></span><span class="d"></span><span>{{pg:s8}}</span></li>
+  <li><span class="l"><a href="#s9">9. Future scope</a></span><span class="d"></span><span>{{pg:s9}}</span></li>
+  <li><span class="l"><a href="#s10">10. Conclusion</a></span><span class="d"></span><span>{{pg:s10}}</span></li>
+  <li><span class="l"><a href="#refs">References</a></span><span class="d"></span><span>{{pg:refs}}</span></li>
+  <li><span class="l"><a href="#appA">Appendix A. Implementation log and issues resolved</a></span><span class="d"></span><span>{{pg:appA}}</span></li>
+  <li><span class="l"><a href="#appB">Appendix B. Worked examples of ASR-induced translation errors</a></span><span class="d"></span><span>{{pg:appB}}</span></li>
+  <li><span class="l"><a href="#appC">Appendix C. Metric definitions and file inventory</a></span><span class="d"></span><span>{{pg:appC}}</span></li>
+</ul>
+
+<!-- ============ 1 PROBLEM STATEMENT ============ -->
+<h1 id="s1">1. Problem statement</h1>
+<h2>1.1 Background</h2>
+<p>Many practical systems turn foreign-language speech into text in another language in two stages: an ASR model first writes down what was said, and an MT model then translates that text. This <em>cascade</em> is simple, modular and works with strong off-the-shelf components, but it has a well-known weakness: the translator never hears the audio. A word that ASR gets wrong is translated as if it had been said, and modern MT models translate the wrong word fluently and confidently.</p>
+<h2>1.2 Problem</h2>
+<p>For Mandarin Chinese to English, we want to know <strong>how much translation quality is lost to ASR errors, and what kinds of errors are responsible</strong>. Answering this needs a test set that has (a) audio, (b) the exact Chinese text that was spoken and (c) a trusted English translation, so that the translation of the ASR output can be compared with the translation of the correct text and with the reference.</p>
+<h2>1.3 Objectives</h2>
+<p>The work follows the four steps of the proposed methodology agreed for the internship:</p>
+<ol>
+  <li><strong>Datasets.</strong> Identify Chinese speech datasets that also carry English translations, and organise them as <code>&lt;audio, Chinese transcript, English translation&gt;</code>.</li>
+  <li><strong>Text-to-speech.</strong> Generate audio from the Chinese transcripts with a Chinese TTS model.</li>
+  <li><strong>ASR.</strong> Transcribe the generated audio with Chinese ASR models.</li>
+  <li><strong>Translate and evaluate.</strong> Translate the ASR transcripts with a Tower model, compare them with the reference translations, and analyse how ASR errors affect translation quality.</li>
+</ol>
+<h2>1.4 Research questions</h2>
+<ul>
+  <li><strong>RQ1.</strong> How accurately do two representative Chinese ASR systems transcribe the generated speech (CER)?</li>
+  <li><strong>RQ2.</strong> How much translation quality (BLEU, chrF++, COMET-22) is lost when the MT model receives ASR output instead of correct text?</li>
+  <li><strong>RQ3.</strong> Which kinds of recognition errors cause the largest losses?</li>
+  <li><strong>RQ4.</strong> Is the per-sentence CER a good predictor of translation loss?</li>
+</ul>
+<h2>1.5 Scope</h2>
+<p>This is a pilot study of 848 sentences in one language direction (Chinese&rarr;English) with synthetic speech. It is designed to produce a working, repeatable evaluation pipeline and first measurements, not final conclusions about real-world audio. Section&nbsp;8 lists the limits explicitly.</p>
+
+<!-- ============ 2 DATASETS ============ -->
+<h1 id="s2">2. Datasets used</h1>
+<h2>2.1 Source corpora</h2>
+<table>
+  <caption>Table 1. Corpora used and what was taken from each</caption>
+  <tr><th>Corpus</th><th>Description</th><th>Used</th><th class="n">Clips</th></tr>
+  <tr><td><strong>CoVoST&nbsp;2</strong> (Wang et al., 2020), zh-CN&rarr;en</td><td>Read speech from Common Voice, with human English translations of the Chinese sentences. Many sentences come from Wikipedia and contain rare names and technical terms.</td><td>Test split, hosted as <code>fixie-ai/covost2</code> (<code>zh-CN_en</code>); streamed, shuffled with seed 42, first 500 rows with non-empty text and translation</td><td class="n">500</td></tr>
+  <tr><td><strong>FLEURS</strong> (Conneau et al., 2022)</td><td>Read speech of the n-way parallel FLoRes sentences in 102 languages; full, longer sentences.</td><td>Test split of <code>google/fleurs</code> <code>cmn_hans_cn</code>; the English reference is the <code>en_us</code> transcription of the same sentence id (one clip per sentence id; 349 sentences had an English counterpart)</td><td class="n">349</td></tr>
+  <tr><td colspan="3"><strong>Total built</strong></td><td class="n">849</td></tr>
+  <tr><td colspan="3"><strong>Used for the headline results</strong> (after excluding the defective clip <code>fleurs_00121</code>, Section&nbsp;6.5)</td><td class="n">848</td></tr>
+</table>
+<div class="note">The first plan used Common Voice directly. Mozilla moved Common Voice off Hugging Face in October 2025 and the dataset page there is now empty, so CoVoST&nbsp;2 had to be loaded from a mirror that embeds the audio, and FLEURS was added as a second, cleaner source.</div>
+<h2>2.2 Data format</h2>
+<p>Every sentence is one row of a manifest with these fields: <code>id</code>, <code>source</code>, <code>audio_path</code> (original recording), <code>zh_ref</code> (Chinese sentence), <code>en_ref</code> (English reference translation). Later steps add <code>tts_audio</code> and <code>tts_voice</code>, the two ASR transcripts and their per-sentence CER, the three translations, and per-sentence chrF++ and COMET scores. The original recordings are kept for future comparison but are <strong>not</strong> used as ASR input: the methodology feeds the ASR with TTS audio generated from <code>zh_ref</code>, which guarantees that the correct transcript is known exactly.</p>
+<h2>2.3 Dataset statistics</h2>
+<table>
+  <caption>Table 2. Summary of the 849 generated clips</caption>
+  <tr><th>Measure</th><th class="n">CoVoST 2</th><th class="n">FLEURS</th><th class="n">All</th></tr>
+  <tr><td>Clips</td><td class="n">500</td><td class="n">349</td><td class="n">849</td></tr>
+  <tr><td>Median clip duration (s)</td><td class="n">4.2</td><td class="n">8.0</td><td class="n">5.6</td></tr>
+  <tr><td>Duration range (s)</td><td class="n">1.9 &ndash; 9.2</td><td class="n">0.2 &ndash; 20.7</td><td class="n">0.2 &ndash; 20.7</td></tr>
+  <tr><td>Characters per sentence (mean)</td><td class="n" colspan="2" style="text-align:center">&mdash;</td><td class="n">25.4</td></tr>
+  <tr><td>Audio format</td><td class="n" colspan="3" style="text-align:center">16 kHz, mono, 16-bit wav</td></tr>
+</table>
+<figure>
+  <img src="fig/f2_durations.png" alt="Histogram of clip durations">
+  <figcaption><strong>Figure 1.</strong> Distribution of TTS clip durations by source. CoVoST&nbsp;2 clips are short phrases; FLEURS clips are full sentences. The nearly empty clip at the far left is the defective <code>fleurs_00121</code>.</figcaption>
+</figure>
+
+<!-- ============ 3 MODELS ============ -->
+<h1 id="s3">3. Models used and system built</h1>
+<p>No model was trained or fine-tuned in this project. The contribution is the <strong>evaluation pipeline</strong>: seven reproducible notebooks and a helper tool for listening checks that chain pre-trained components, run them at scale on Kaggle GPUs and score the results. The components are listed below.</p>
+<table>
+  <caption>Table 3. Components of the pipeline</caption>
+  <tr><th>Stage</th><th>Component</th><th>Key settings</th></tr>
+  <tr><td>Text-to-speech</td><td>Microsoft <strong>Edge-TTS</strong> (cloud neural voices): <code>zh-CN-XiaoxiaoNeural</code>, <code>YunxiNeural</code>, <code>YunjianNeural</code>, <code>XiaoyiNeural</code></td><td>Voice per sentence chosen deterministically from a hash of the id (four voices, both genders); converted to 16 kHz mono wav</td></tr>
+  <tr><td rowspan="2">ASR</td><td><strong>Whisper large-v3</strong> (OpenAI; Radford et al., 2023), ~1.55 B parameters, encoder&ndash;decoder Transformer</td><td>fp16, language <code>zh</code>, greedy decoding, batches of 16 sorted by length; output has punctuation</td></tr>
+  <tr><td><strong>Paraformer-zh</strong> (FunASR; Gao et al., 2022), non-autoregressive end-to-end ASR</td><td>GPU, batches of 32 files; output has no punctuation and often writes numbers as Chinese words</td></tr>
+  <tr><td>Machine translation</td><td><strong>TowerInstruct-7B-v0.2</strong> (Unbabel; Alves et al., 2024), 7 B parameters, instruction-tuned for ten languages including Chinese and English</td><td>fp16 split across two T4 GPUs; ChatML prompt &ldquo;Translate the following text from Chinese into English&rdquo;; greedy decoding, 200-token cap</td></tr>
+  <tr><td rowspan="4">Metrics</td><td><strong>CER</strong></td><td>After traditional&rarr;simplified conversion (OpenCC) and removal of punctuation and spaces</td></tr>
+  <tr><td><strong>BLEU</strong> (sacreBLEU)</td><td>Corpus level, default tokenisation</td></tr>
+  <tr><td><strong>chrF++</strong> (sacreBLEU)</td><td>Character n-grams plus word bigrams (<code>word_order=2</code>)</td></tr>
+  <tr><td><strong>COMET-22</strong> (<code>Unbabel/wmt22-comet-da</code>; Rei et al., 2022)</td><td>Neural, reference-based; source = the original Chinese sentence; reported on the 0&ndash;1 scale (or &times;100)</td></tr>
+</table>
+<h2>3.1 A note on &ldquo;TowerChat&rdquo;</h2>
+<p>The proposed methodology names TowerChat as the translation model. TowerChat is the system introduced by Pombal et al. (2025), one of the two reference papers: TowerBase-7B fine-tuned on translation data plus customer-chat conversations with <em>context-augmented</em> prompts. That paper trains and evaluates it on English&harr;{German, French, Portuguese-Brazilian, Korean, Dutch}; <strong>Chinese is not among the languages</strong>, and we did not find a public checkpoint under that name. TowerInstruct-7B is the model that paper uses as its baseline and starting point, and it officially supports Chinese, so this study uses <strong>TowerInstruct-7B-v0.2</strong>, which was agreed with the project guide. Section&nbsp;7 discusses what a context-aware TowerChat-style model could add.</p>
+<h2>3.2 What was built</h2>
+<table>
+  <caption>Table 4. Notebooks and tools written for the project</caption>
+  <tr><th>Item</th><th>Purpose</th></tr>
+  <tr><td><code>01_datasets</code></td><td>Build the 849-row <code>&lt;audio, zh, en&gt;</code> manifest from CoVoST&nbsp;2 and FLEURS; package the audio</td></tr>
+  <tr><td><code>02_tts</code></td><td>Synthesise one clip per Chinese sentence (four voices, retries, resumable)</td></tr>
+  <tr><td><code>03_asr</code></td><td>Run Whisper and Paraformer on all clips; compute CER overall and per sentence</td></tr>
+  <tr><td><code>04_translate</code></td><td>Translate the reference text and both transcripts with TowerInstruct (identical strings translated once)</td></tr>
+  <tr><td><code>05_score</code> / <code>07_rescore_excl</code></td><td>BLEU, chrF++, COMET-22, per-sentence scores, CER buckets, correlation, worst-case export; <code>07</code> is the same notebook with the defective clip excluded</td></tr>
+  <tr><td><code>06_audio_check</code></td><td>Automatic quality check of every TTS clip: duration, loudness, clipping, silence, speech rate</td></tr>
+  <tr><td><code>tools/make_listening_page.py</code></td><td>Builds an offline page for rating a sample of clips by ear</td></tr>
+</table>
+
+<!-- ============ 4 METHODOLOGY ============ -->
+<h1 id="s4">4. Methodology implemented</h1>
+<h2>4.1 Pipeline overview</h2>
+<div class="pipe">
+  <div class="b"><b>1. Datasets</b>CoVoST&nbsp;2 + FLEURS<br>&rarr; manifest of 849 <span class="small">&lt;audio, zh, en&gt;</span></div><div class="a">&rarr;</div>
+  <div class="b"><b>2. Text-to-speech</b>Edge-TTS, 4 voices<br>zh sentence &rarr; 16 kHz wav</div><div class="a">&rarr;</div>
+  <div class="b"><b>3. ASR</b>Whisper large-v3<br>Paraformer-zh<br>wav &rarr; zh transcript</div>
+  <div class="b"><b>4a. Translation</b>TowerInstruct-7B<br>zh reference &rarr; en (clean)<br>zh transcript &rarr; en (from ASR)</div><div class="a">&rarr;</div>
+  <div class="b"><b>4b. Scoring</b>BLEU, chrF++, COMET-22 vs the English reference; CER vs the Chinese text</div><div class="a">&rarr;</div>
+  <div class="b"><b>4c. Analysis</b>CER buckets, error taxonomy, audio and listening checks</div>
+</div>
+<p class="small"><strong>Figure 2.</strong> The cascaded evaluation pipeline. The &ldquo;clean&rdquo; translation (Tower applied to the correct Chinese text) is an upper bound for what ASR transcripts can achieve with this MT model.</p>
+<h2>4.2 Experimental design</h2>
+<p>Every sentence is translated three times: from the correct Chinese text (the <em>clean</em> condition), from the Whisper transcript and from the Paraformer transcript. All three outputs are scored against the same English reference. The difference between the clean score and an ASR score is the <strong>translation loss caused by ASR errors</strong>; comparing against the clean condition, and not only against the reference, separates the damage done by ASR from errors that the MT model would make anyway.</p>
+<h2>4.3 Steps in detail</h2>
+<ol>
+  <li><strong>Dataset construction.</strong> 500 CoVoST&nbsp;2 rows and 349 FLEURS rows were sampled as described in Table 1 and written to <code>manifest.jsonl</code>; audio was packed into a zip because Kaggle lists at most 500 output files.</li>
+  <li><strong>Speech synthesis.</strong> Each <code>zh_ref</code> was sent to Edge-TTS with eight requests in flight and up to three retries; the mp3 was converted to 16 kHz mono wav with ffmpeg. All 849 clips were produced in 172 s with no failures.</li>
+  <li><strong>Recognition.</strong> Whisper (256 s) and Paraformer (136 s) transcribed all clips on a T4 GPU. CER was computed per sentence and for the corpus as total edits divided by total reference characters, after normalisation (Appendix C).</li>
+  <li><strong>Translation.</strong> The 2,547 strings to translate (849 &times; 3) contain 2,270 unique strings (identical strings, for example a transcript that equals its reference, need translating only once); each unique string was translated once (about 13 minutes including model loading).</li>
+  <li><strong>Scoring.</strong> BLEU and chrF++ at corpus level, COMET-22 per sentence and averaged, all against the English reference; sentences were then grouped by their own CER into four buckets (exact, 0&ndash;5%, 5&ndash;15%, above 15%) to relate recognition errors to translation loss.</li>
+  <li><strong>Quality control.</strong> An automatic audio check of all clips (notebook&nbsp;06) found one defective clip; the author also listened to a sample through the listening page and reported no audible problems (individual ratings were not recorded, so no numeric naturalness score is reported). The defective clip was excluded and everything was recomputed on 848 clips (notebook&nbsp;07). The recomputation first reproduced the earlier 849-clip CERs exactly, confirming that the two runs are comparable.</li>
+  <li><strong>Error analysis.</strong> The 20 sentences with the largest COMET loss for each ASR system (40 in total) were read and classified by hand into error types.</li>
+</ol>
+<h2>4.4 Platform</h2>
+<p>All heavy computation ran on Kaggle notebooks (Python 3.13; two NVIDIA T4 GPUs for ASR, MT and COMET; CPU only for TTS and the audio check). Long runs were executed as saved notebook versions, which run on Kaggle&rsquo;s servers independently of the author&rsquo;s computer. Notebooks were authored locally as <code>.py</code>/<code>.ipynb</code> and imported into Kaggle, and each stage published its output as a private Kaggle dataset consumed by the next stage, which makes every intermediate result inspectable. Appendix&nbsp;A lists run times and the problems met along the way.</p>
+
+<!-- ============ 5 RESULTS ============ -->
+<h1 id="s5">5. Results</h1>
+<p>Unless stated otherwise, results are on 848 clips (500 CoVoST&nbsp;2, 348 FLEURS). The original 849-clip numbers are given in Section&nbsp;5.4 for transparency.</p>
+<h2>5.1 Recognition accuracy (RQ1)</h2>
+<table>
+  <caption>Table 5. Corpus character error rate (%)</caption>
+  <tr><th>Model</th><th class="n">CoVoST 2 (500)</th><th class="n">FLEURS (348)</th><th class="n">All (848)</th></tr>
+  <tr><td>Whisper large-v3</td><td class="n">9.72</td><td class="n">4.59</td><td class="n"><strong>6.57</strong></td></tr>
+  <tr><td>Paraformer-zh</td><td class="n">6.69</td><td class="n">6.01</td><td class="n"><strong>6.27</strong></td></tr>
+</table>
+<figure>
+  <img src="fig/f3_cer.png" alt="CER by model and source" style="max-width:78%">
+  <figcaption><strong>Figure 3.</strong> CER by model and source. Whisper is clearly worse on CoVoST&nbsp;2 (short phrases full of rare names) and better on FLEURS (longer, ordinary sentences); Paraformer is steadier across the two.</figcaption>
+</figure>
+<h2>5.2 Translation quality (RQ2)</h2>
+<table>
+  <caption>Table 6. Translation quality against the English reference (848 clips)</caption>
+  <tr><th>Input given to TowerInstruct</th><th class="n">BLEU</th><th class="n">chrF++</th><th class="n">COMET-22</th></tr>
+  <tr><td>Correct Chinese text (clean baseline)</td><td class="n">27.81</td><td class="n">52.46</td><td class="n">0.8195</td></tr>
+  <tr><td>Whisper transcript</td><td class="n">24.24</td><td class="n">49.21</td><td class="n">0.7827</td></tr>
+  <tr><td>Paraformer transcript</td><td class="n">23.50</td><td class="n">48.89</td><td class="n">0.7899</td></tr>
+  <tr><td><em>Loss from ASR errors &mdash; Whisper</em></td><td class="n">&minus;3.57</td><td class="n">&minus;3.25</td><td class="n">&minus;0.0368</td></tr>
+  <tr><td><em>Loss from ASR errors &mdash; Paraformer</em></td><td class="n">&minus;4.31</td><td class="n">&minus;3.57</td><td class="n">&minus;0.0296</td></tr>
+</table>
+<figure>
+  <img src="fig/f4_translation.png" alt="Translation quality for clean, Whisper and Paraformer inputs">
+  <figcaption><strong>Figure 4.</strong> Translation quality on 848 clips. &ldquo;Clean&rdquo; is Tower applied to the correct Chinese text. COMET is shown &times;100.</figcaption>
+</figure>
+<table>
+  <caption>Table 7. Translation quality by source (BLEU / chrF++ / COMET-22)</caption>
+  <tr><th>Input</th><th class="n">CoVoST 2 (500)</th><th class="n">FLEURS (348)</th></tr>
+  <tr><td>Clean text</td><td class="n">24.77 / 48.34 / 0.7856</td><td class="n">30.02 / 55.62 / 0.8683</td></tr>
+  <tr><td>Whisper</td><td class="n">21.75 / 44.82 / 0.7389</td><td class="n">26.06 / 52.56 / 0.8456</td></tr>
+  <tr><td>Paraformer</td><td class="n">21.89 / 45.31 / 0.7522</td><td class="n">24.68 / 51.63 / 0.8440</td></tr>
+</table>
+<figure>
+  <img src="fig/f5_comet_source.png" alt="COMET by source" style="max-width:78%">
+  <figcaption><strong>Figure 5.</strong> COMET-22 (&times;100) by source. CoVoST&nbsp;2 is harder at every stage; the ranking of the two ASR systems follows their CER on each source.</figcaption>
+</figure>
+<h2>5.3 Loss by recognition quality (RQ4)</h2>
+<table>
+  <caption>Table 8. COMET-22 by per-sentence CER bucket</caption>
+  <tr><th>CER bucket</th><th>System</th><th class="n">Clips</th><th class="n">COMET (ASR input)</th><th class="n">COMET (clean)</th><th class="n">Loss</th></tr>
+  <tr><td rowspan="2">CER = 0 (exact)</td><td>Whisper</td><td class="n">411</td><td class="n">0.848</td><td class="n">0.855</td><td class="n">0.007</td></tr>
+  <tr><td>Paraformer</td><td class="n">427</td><td class="n">0.834</td><td class="n">0.843</td><td class="n">0.009</td></tr>
+  <tr><td rowspan="2">0&ndash;5%</td><td>Whisper</td><td class="n">98</td><td class="n">0.825</td><td class="n">0.840</td><td class="n">0.015</td></tr>
+  <tr><td>Paraformer</td><td class="n">94</td><td class="n">0.825</td><td class="n">0.841</td><td class="n">0.016</td></tr>
+  <tr><td rowspan="2">5&ndash;15%</td><td>Whisper</td><td class="n">167</td><td class="n">0.772</td><td class="n">0.816</td><td class="n">0.044</td></tr>
+  <tr><td>Paraformer</td><td class="n">189</td><td class="n">0.765</td><td class="n">0.816</td><td class="n">0.051</td></tr>
+  <tr><td rowspan="2">&gt; 15%</td><td>Whisper</td><td class="n">172</td><td class="n">0.614</td><td class="n">0.727</td><td class="n">0.113</td></tr>
+  <tr><td>Paraformer</td><td class="n">138</td><td class="n">0.664</td><td class="n">0.738</td><td class="n">0.074</td></tr>
+</table>
+<p>The Pearson correlation between a sentence&rsquo;s CER and its COMET loss is <strong>0.50 for Whisper and 0.33 for Paraformer</strong>: CER is a useful but imperfect predictor, which Section&nbsp;6 explains.</p>
+<h2>5.4 Effect of excluding the defective clip</h2>
+<table>
+  <caption>Table 9. Headline numbers with and without <code>fleurs_00121</code></caption>
+  <tr><th>Measure</th><th class="n">849 clips</th><th class="n">848 clips</th></tr>
+  <tr><td>CER Whisper / Paraformer (%)</td><td class="n">6.81 / 6.51</td><td class="n">6.57 / 6.27</td></tr>
+  <tr><td>BLEU clean / Whisper / Paraformer</td><td class="n">27.87 / 24.18 / 23.44</td><td class="n">27.81 / 24.24 / 23.50</td></tr>
+  <tr><td>chrF++ clean / Whisper / Paraformer</td><td class="n">52.50 / 49.11 / 48.79</td><td class="n">52.46 / 49.21 / 48.89</td></tr>
+  <tr><td>COMET clean / Whisper / Paraformer</td><td class="n">0.8196 / 0.7822 / 0.7894</td><td class="n">0.8195 / 0.7827 / 0.7899</td></tr>
+</table>
+<p>The exclusion lowers both CERs by 0.24 points (the clip counted as roughly 55 character errors for each system) and moves the translation scores by at most 0.1 point; the conclusions do not change.</p>
+
+<!-- ============ 6 ANALYSIS ============ -->
+<h1 id="s6">6. Analysis</h1>
+<h2>6.1 Translation loss is concentrated in a minority of sentences</h2>
+<figure>
+  <img src="fig/f6_bucket_drop.png" alt="COMET loss by CER bucket" style="max-width:82%">
+  <figcaption><strong>Figure 6.</strong> COMET loss relative to the clean-text translation, by per-sentence CER bucket. Loss rises steeply with CER.</figcaption>
+</figure>
+<p>Roughly half of all sentences are transcribed <em>exactly</em> (411 of 848 for Whisper, 427 for Paraformer), and these lose almost nothing (0.007&ndash;0.009 COMET). The loss comes from the other half, and mostly from the sentences with the worst transcripts:</p>
+<figure>
+  <img src="fig/f7_loss_share.png" alt="Share of clips versus share of translation loss">
+  <figcaption><strong>Figure 7.</strong> Share of clips in each CER bucket versus share of the total COMET loss (derived from bucket means, so approximate). For Whisper, the 20% of clips with CER above 15% cause about 62% of the loss; for Paraformer the same bucket (16% of clips) causes about 41%, with another 38% from the 5&ndash;15% bucket.</figcaption>
+</figure>
+<p>The practical consequence is that <strong>average scores hide a heavy tail</strong>: improving the worst fifth of the transcripts would recover most of the lost quality, whereas small improvements on already good transcripts would change little.</p>
+
+<h2>6.2 What kinds of errors do the damage (RQ3)</h2>
+<figure>
+  <img src="fig/f8_error_types.png" alt="Error types among the worst cases" style="max-width:88%">
+  <figcaption><strong>Figure 8.</strong> Primary error type among the 20 sentences with the largest COMET loss for each ASR system (hand-classified; 40 sentences, about 5% of the data, so this shows what causes the large losses, not how common each type is overall).</figcaption>
+</figure>
+<ul>
+  <li><strong>Homophone errors in rare names and technical terms (22 of 40).</strong> Mandarin has many characters with the same or similar pronunciation, and an ASR system that does not know a rare word substitutes a likelier one. The MT model then translates the wrong word faithfully: for &ldquo;platinum-based drugs &hellip; cisplatin and carboplatin&rdquo;, the Whisper transcript contains <span class="zh">搏击</span> (&ldquo;combat&rdquo;) instead of <span class="zh">铂基</span>, and the translation reads &ldquo;Other combat drugs include sinupret and kampfer&rdquo; (Appendix&nbsp;B).</li>
+  <li><strong>Homophone errors in common words (8 of 40)</strong> change the meaning of an ordinary phrase, for example <span class="zh">公测</span> (&ldquo;public beta&rdquo;) heard as <span class="zh">公厕</span> (&ldquo;public toilet&rdquo;).</li>
+  <li><strong>Foreign names and Latin-script words (4 of 40)</strong>, such as place and person names inside Chinese sentences, are mangled by both systems.</li>
+  <li><strong>Missing punctuation and numbers written as words (3 of 40, all Paraformer).</strong> These cases show a limit of CER: the sentence <span class="zh">我吃的亏还少吗</span> has CER&nbsp;0.0 (punctuation is ignored) yet loses 0.31 COMET because the missing question mark turns &ldquo;Have I suffered any losses?&rdquo; into &ldquo;Am I still losing out on eating this?&rdquo;.</li>
+  <li><strong>Whole-clip failures (3 of 40).</strong> Whisper can get stuck repeating a name until the token limit (one case in the sample repeats <span class="zh">克里斯蒂娜</span> dozens of times, and Tower translates the loop); the other whole-clip cases trace back to the defective audio (Section&nbsp;6.5).</li>
+</ul>
+
+<h2>6.3 Whisper versus Paraformer</h2>
+<p>The two systems have similar overall CER but different profiles. Whisper is much worse on CoVoST&nbsp;2 (9.72% versus 6.69%) and better on FLEURS (4.59% versus 6.01%), and its worst cases are more severe (loss of 0.113 COMET in the highest-CER bucket versus 0.074). Overall, Paraformer has the lower CER and the smaller COMET loss (0.030 versus 0.037) yet the <em>larger</em> BLEU and chrF++ loss (4.31 versus 3.57 BLEU). A plausible explanation, consistent with the error review but not tested here, is that Paraformer&rsquo;s unpunctuated output and number-as-word style change surface forms (digits versus words, sentence boundaries) that n-gram metrics penalise more than the neural metric does. CER alone therefore does not rank ASR systems for a downstream translation task.</p>
+
+<h2>6.4 Effect of the data source</h2>
+<p>CoVoST&nbsp;2 scores are lower than FLEURS at every stage, including the clean-text baseline (COMET 0.786 versus 0.868). Its sentences are short, drawn from Wikipedia, and rich in rare proper names and terms, and its English references are noisy (for example &ldquo;Borned in Kochi county&rdquo;). Part of the CoVoST&nbsp;2 gap is therefore a property of the data, not of ASR, which is why the clean-text baseline matters.</p>
+
+<h2>6.5 Data-quality checks</h2>
+<p>An automatic check of all 849 clips (notebook&nbsp;06) found no clipping, no very quiet clips, no clip longer than Whisper&rsquo;s 30-second window (maximum 20.7 s), and no long internal pauses. It found <strong>one defective clip</strong>, <code>fleurs_00121</code>: a 55-character sentence synthesised as 0.24 s of audio (89% silent). Whisper returned an unrelated three-character string for it and Paraformer returned nothing, so it was the worst case for both systems although neither ASR model was at fault. Fifteen clips were flagged as mostly silent, but all are very short CoVoST&nbsp;2 phrases padded to about 1.9 s, and two FLEURS clips have unusually fast delivery (6.8 and 8.2 characters per second). The finding illustrates why synthetic data needs its own quality control before ASR errors are interpreted.</p>
+<h2>6.6 Summary of findings</h2>
+<ol>
+  <li>With this MT model, translating ASR output instead of correct text costs about 3.6&ndash;4.3 BLEU, 3.3&ndash;3.6 chrF++ and 0.03&ndash;0.04 COMET.</li>
+  <li>Half of the sentences are transcribed exactly and are translated almost as well as the clean text; the loss is a heavy tail of badly recognised sentences.</li>
+  <li>The costliest errors are small: one wrong character in a rare name or term can reverse the meaning of the translation.</li>
+  <li>CER is a useful but incomplete predictor (r = 0.50 and 0.33); punctuation, numbers and format matter for translation but not for CER.</li>
+  <li>Evaluation data must be checked: one defective synthetic clip was the worst case for both ASR systems.</li>
+</ol>
+
+<!-- ============ 7 COMPARISON ============ -->
+<h1 id="s7">7. Comparison with the reference papers</h1>
+<p>Two papers were supplied with the internship: Pombal et al. (2025), <em>A Context-aware Framework for Translation-mediated Conversations</em> (the TowerChat paper), and Nieminen, Tiedemann and Virpioja (2025), <em>Implementing and Evaluating Multi-source Retrieval-Augmented Translation</em>. Both improve the <em>translation</em> stage with information the plain model lacks (conversation context, and terminology plus translation-memory matches). Our study measures what happens to the translation stage when its <em>input</em> is damaged by ASR. They are complementary, and our error analysis points to the same kind of missing information that both papers address.</p>
+<h2>7.1 Side-by-side</h2>
+<table class="long">
+  <caption>Table 10. This study compared with the two reference papers</caption>
+  <tr><th></th><th>This study</th><th>Pombal et al. (2025), TowerChat</th><th>Nieminen et al. (2025), RAT</th></tr>
+  <tr><td><strong>Question</strong></td><td>How do ASR errors degrade zh&rarr;en translation?</td><td>Can conversational context, in training and decoding, improve LLM-based translation of chats?</td><td>How should terminology and translation-memory matches be combined in one MT system?</td></tr>
+  <tr><td><strong>Input</strong></td><td>Speech (synthetic) &rarr; ASR transcripts</td><td>Text chat turns with preceding bilingual context</td><td>Text sentences plus retrieved terms and fuzzy matches</td></tr>
+  <tr><td><strong>Languages</strong></td><td>Chinese&rarr;English</td><td>English&harr;German, French, Portuguese, Korean, Dutch (WMT24 Chat); English&harr;German (BConTrast)</td><td>English&rarr;Finnish</td></tr>
+  <tr><td><strong>Models</strong></td><td>Whisper large-v3, Paraformer-zh, TowerInstruct-7B</td><td>TowerChat-7B (fine-tuned TowerBase-7B), TowerInstruct-7B, GPT-4o</td><td>Marian NMT models trained with retrieval annotations; Gemma&nbsp;3 12B, EuroLLM 9B</td></tr>
+  <tr><td><strong>Training</strong></td><td>None (pre-trained models only)</td><td>Context-augmented instruction fine-tuning; optional distillation of quality-aware decoding</td><td>Continued training of Tatoeba-Challenge models; contrastive ensembling</td></tr>
+  <tr><td><strong>Metrics</strong></td><td>CER, BLEU, chrF++, COMET-22; manual error taxonomy</td><td>chrF, COMET-22, MetricX-XL, ContextMQM (GPT-4), MuDA F1; significance clusters</td><td>Reference-free COMET, plus a purpose-built test suite scoring term and fuzzy-match use</td></tr>
+  <tr><td><strong>Main result</strong></td><td>ASR errors cost 3.6&ndash;4.3 BLEU / 0.03&ndash;0.04 COMET; loss concentrated in badly recognised sentences and rare terms</td><td>Context-aware training and quality-aware decoding (MBR with COMET) beat TowerInstruct and, on WMT24, GPT-4o</td><td>Contrastive ensembling of term and fuzzy models beats naive ensembles and single multi-source models; Gemma&nbsp;3 12B is best on terminology</td></tr>
+</table>
+<h2>7.2 Numbers in context</h2>
+<figure>
+  <img src="fig/f9_paper_context.png" alt="COMET-22 in this study and in the TowerChat paper">
+  <figcaption><strong>Figure 9.</strong> COMET-22 (&times;100) for this study (blue) and selected XX&rarr;EN results from Pombal et al. (2025) (grey). The data, languages and domains differ, so this is context, not a head-to-head comparison.</figcaption>
+</figure>
+<p>The paper reports COMET-22 around 92&ndash;93 for chat translation into English, far above our 78&ndash;82. This does <em>not</em> mean our MT model performs worse. The paper also reports TowerInstruct&rsquo;s COMET on the general-domain WMT23 test set (82.77 for XX&rarr;EN), and our clean-text figure of 81.95 sits close to that, whereas chat conversations are short, repetitive and domain-specific, which makes them easier to score well. Our data (rare Wikipedia names and noisy references) is closer to general-domain text. Two further points are worth noting: the paper&rsquo;s TowerChat loses only 0.3 COMET on WMT23 relative to TowerInstruct, so context-aware fine-tuning does not appear to damage general translation; and the paper does not include Chinese, so its gains cannot be assumed for zh&rarr;en.</p>
+<h2>7.3 What the papers suggest for our findings</h2>
+<ul>
+  <li><strong>Context could repair some ASR-induced ambiguity.</strong> Pombal et al. show that context helps most when the translation without context is poor (their Figure&nbsp;3), and that conversational context resolves ambiguous words and pronouns. A transcript that contains a wrong word is exactly an ambiguous, low-quality input; earlier sentences of the conversation or document could make <span class="zh">铂基</span> (platinum-based) more likely than <span class="zh">搏击</span> (combat). This is a hypothesis for future work; our experiment translated each sentence alone.</li>
+  <li><strong>Quality-aware decoding is a candidate mitigation, with a cost.</strong> Their best systems sample 100 translations and select one with a COMET-based criterion (minimum Bayes risk decoding), which improved all metrics but needs about 100 times more generation and 10,000 metric evaluations per segment, and they show that distilling it back into the model recovers part of the gain.</li>
+  <li><strong>Terminology retrieval addresses our dominant error class.</strong> Nieminen et al. build MT that obeys terms retrieved from a termbase. Our worst cases are mostly rare names and technical terms, so a domain glossary (for an organisation such as DRDO, its own vocabulary) could be used to bias ASR output or to constrain translation. Their finding that a large LLM (Gemma&nbsp;3 12B) is best at using terms supports giving a glossary to the LLM translator in the prompt.</li>
+  <li><strong>Standard metrics do not measure what matters here.</strong> Nieminen et al. build a dedicated test suite because BLEU and COMET &ldquo;provide no information&rdquo; on whether retrieved terms were used; Pombal et al. add MuDA and ContextMQM for the same reason. Our analysis found the analogous gap: COMET and BLEU register a wrong named entity as a modest score change, while for a reader it can invert the meaning. A term- or entity-accuracy check is the natural addition.</li>
+  <li><strong>Statistical rigour.</strong> Pombal et al. group systems into significance clusters (95% confidence) before ranking them. Our study reports point estimates without confidence intervals; adding bootstrap intervals is a straightforward improvement (Section&nbsp;9).</li>
+</ul>
+<h2>7.4 Differences that limit direct comparison</h2>
+<p>The papers study text-to-text translation; none involves speech. Their language pairs, domains and metrics (MetricX, ContextMQM, term scores) differ from ours, and their systems are trained or retrieval-augmented, whereas ours are used off the shelf. The comparison above is therefore about methodology and plausible mitigations, not about whose numbers are higher.</p>
+
+<!-- ============ 8 LIMITATIONS ============ -->
+<h1 id="s8">8. Limitations</h1>
+<ul>
+  <li><strong>Synthetic speech.</strong> The audio comes from one cloud TTS engine (four voices): it is clean, evenly paced and free of noise, accents and disfluencies, so real-world ASR error rates will be higher and different in character. Edge-TTS is an online service whose voices can change, so the audio is not strictly reproducible. Naturalness was checked informally by listening, not scored.</li>
+  <li><strong>Size and statistics.</strong> 848 sentences, one run, no confidence intervals or significance tests; small differences (for example between the two ASR systems) should not be over-interpreted.</li>
+  <li><strong>One translation model, greedy decoding.</strong> TowerInstruct-7B-v0.2 is not the TowerChat model named in the methodology, and results with other MT models may differ.</li>
+  <li><strong>Noisy references and metric choice.</strong> CoVoST&nbsp;2 references contain translation errors, which lowers absolute scores for all systems equally; BLEU, chrF++ and COMET do not directly measure named-entity or terminology accuracy.</li>
+  <li><strong>Manual error analysis.</strong> Based on the 40 worst cases (about 5% of the data) and classified by the author, not verified by a native speaker.</li>
+  <li><strong>Licensing.</strong> The Tower models are released under CC-BY-NC-4.0 (non-commercial), which matters for any deployment beyond research.</li>
+</ul>
+
+<!-- ============ 9 FUTURE SCOPE ============ -->
+<h1 id="s9">9. Future scope</h1>
+<h3>Data and realism</h3>
+<ul>
+  <li>Evaluate on real recordings: the original human audio of both corpora is already stored in the manifest, and adding it would show how far synthetic speech under- or over-states the loss.</li>
+  <li>Add noise, speaking-rate and accent variation, telephone-band audio and a second, offline TTS engine for reproducibility.</li>
+  <li>Scale to several thousand sentences and to defence-relevant vocabulary and domains.</li>
+</ul>
+<h3>Recognition</h3>
+<ul>
+  <li>Contextual biasing with a domain glossary, and prompting Whisper with expected terms.</li>
+  <li>Safeguards against Whisper&rsquo;s repetition loops (repetition penalties, compression-ratio and no-speech checks, temperature fallback).</li>
+  <li>Punctuation and number normalisation for Paraformer, and LLM-based post-correction of ASR output.</li>
+  <li>Passing several ASR hypotheses (n-best) to the translator instead of one string.</li>
+</ul>
+<h3>Translation</h3>
+<ul>
+  <li>Context-aware translation, with preceding sentences as context, and TowerChat-style fine-tuning that includes Chinese; quality-aware decoding (with the cost discussed in Section&nbsp;7).</li>
+  <li>Terminology-constrained or retrieval-augmented translation with a domain termbase and translation memory, and a comparison with larger LLMs and newer Tower versions.</li>
+  <li>An end-to-end speech-translation baseline (for example Whisper&rsquo;s own translate mode or a dedicated speech-translation model) against the cascade.</li>
+</ul>
+<h3>Evaluation</h3>
+<ul>
+  <li>Bootstrap confidence intervals and significance testing; human evaluation (for example MQM-style annotation) of a sample.</li>
+  <li>Entity- and term-accuracy metrics, and a larger, systematic error taxonomy with native-speaker review.</li>
+</ul>
+<h3>Engineering</h3>
+<ul>
+  <li>Pin library versions in a single environment file (the COMET installation needed workarounds, Appendix&nbsp;A), publish the notebooks, and package the pipeline as one command-line tool.</li>
+</ul>
+
+<!-- ============ 10 CONCLUSION ============ -->
+<h1 id="s10">10. Conclusion</h1>
+<p>This project delivered a complete, repeatable pipeline that takes Chinese&ndash;English sentence pairs, synthesises speech, recognises it with two ASR systems, translates the transcripts with TowerInstruct-7B and scores the result, together with the quality checks needed to trust it. On 848 sentences, ASR errors lower translation quality by about 3.6&ndash;4.3 BLEU, 3.3&ndash;3.6 chrF++ and 0.03&ndash;0.04 COMET compared with translating correct text, at CERs of 6.57% (Whisper) and 6.27% (Paraformer).</p>
+<p>The more useful finding is where the loss comes from. Half of the sentences are recognised exactly and translate almost perfectly; a minority of badly recognised sentences, mainly single-character homophone errors in rare names and technical terms, account for most of the loss, and for Whisper the worst fifth of the sentences accounts for about 62%. CER only partly predicts this, because punctuation and number formatting change translations without changing CER. A data-quality check also found one defective synthetic clip that had been the worst case for both ASR systems.</p>
+<p>The two reference papers point to the next steps: conversational context and quality-aware decoding for ambiguous input, and terminology retrieval for exactly the rare terms that cause the damage. Because this was a pilot with synthetic speech and one translation model, the numbers should be taken as a baseline and a method, to be repeated on real audio and domain vocabulary before conclusions are drawn for deployment.</p>
+
+<!-- ============ REFERENCES ============ -->
+<h1 id="refs">References</h1>
+<ol class="small">
+  <li>Alves, D. M., Pombal, J., Guerreiro, N. M., et al. (2024). Tower: An open multilingual large language model for translation-related tasks. <em>arXiv:2402.17733</em>.</li>
+  <li>Conneau, A., Ma, M., Khanuja, S., et al. (2022). FLEURS: Few-shot learning evaluation of universal representations of speech. <em>IEEE Spoken Language Technology Workshop</em>.</li>
+  <li>Gao, Z., Zhang, S., McLoughlin, I., &amp; Yan, Z. (2022). Paraformer: Fast and accurate parallel transformer for non-autoregressive end-to-end speech recognition. <em>Interspeech 2022</em>.</li>
+  <li>Nieminen, T., Tiedemann, J., &amp; Virpioja, S. (2025). Implementing and evaluating multi-source retrieval-augmented translation. <em>Proceedings of the Tenth Conference on Machine Translation (WMT)</em>, pp. 327&ndash;339. Association for Computational Linguistics.</li>
+  <li>Papineni, K., Roukos, S., Ward, T., &amp; Zhu, W.-J. (2002). BLEU: A method for automatic evaluation of machine translation. <em>ACL 2002</em>.</li>
+  <li>Pombal, J., Agrawal, S., Zaranis, E., Fernandes, P., &amp; Martins, A. F. T. (2025). A context-aware framework for translation-mediated conversations. <em>arXiv:2412.04205</em>.</li>
+  <li>Popovi&#263;, M. (2015). chrF: Character n-gram F-score for automatic MT evaluation; and Popovi&#263;, M. (2017), chrF++: Words helping character n-grams. <em>WMT</em>.</li>
+  <li>Post, M. (2018). A call for clarity in reporting BLEU scores. <em>WMT 2018</em> (sacreBLEU).</li>
+  <li>Radford, A., Kim, J. W., Xu, T., Brockman, G., McLeavey, C., &amp; Sutskever, I. (2023). Robust speech recognition via large-scale weak supervision. <em>ICML 2023</em> (Whisper).</li>
+  <li>Rei, R., C. de Souza, J. G., Alves, D., et al. (2022). COMET-22: Unbabel-IST 2022 submission for the metrics shared task. <em>WMT 2022</em>.</li>
+  <li>Wang, C., Wu, A., &amp; Pino, J. (2020). CoVoST 2 and massively multilingual speech-to-text translation. <em>arXiv:2007.10310</em>.</li>
+</ol>
+<p class="small">The two reference papers (Pombal et al., 2025; Nieminen et al., 2025) were read in full from the copies supplied in the internship folder. The remaining citations were written from the authors&rsquo; published titles and should be checked against the originals before submission.</p>
+
+<!-- ============ APPENDIX A ============ -->
+<h1 id="appA">Appendix A. Implementation log and issues resolved</h1>
+<table>
+  <caption>Table A1. Notebook runs (Kaggle)</caption>
+  <tr><th>Notebook</th><th>Accelerator</th><th class="n">Run time</th><th>Output</th></tr>
+  <tr><td><code>01_datasets</code></td><td>CPU</td><td class="n">2 min 10 s</td><td><code>zh-en-manifest</code>: 849 rows + audio zip</td></tr>
+  <tr><td><code>02_tts</code></td><td>CPU</td><td class="n">207 s (synthesis 172 s)</td><td><code>zh-tts-audio</code>: 849 wav files + manifest</td></tr>
+  <tr><td><code>03_asr</code></td><td>2&times; T4</td><td class="n">714 s (Whisper 256 s, Paraformer 136 s)</td><td><code>zh-asr-transcripts</code></td></tr>
+  <tr><td><code>04_translate</code></td><td>2&times; T4</td><td class="n">817 s</td><td><code>zh-mt-outputs</code></td></tr>
+  <tr><td><code>05_score</code></td><td>2&times; T4</td><td class="n">146 s</td><td>Scores on 849 clips</td></tr>
+  <tr><td><code>06_audio_check</code></td><td>CPU</td><td class="n">30 s</td><td>Per-clip audio statistics; 17 flagged clips</td></tr>
+  <tr><td><code>07_rescore_excl</code></td><td>2&times; T4</td><td class="n">155 s</td><td>Scores on 848 clips (headline results)</td></tr>
+</table>
+<table>
+  <caption>Table A2. Problems met and how they were resolved</caption>
+  <tr><th>Problem</th><th>Resolution</th></tr>
+  <tr><td>Common Voice no longer available on Hugging Face (October 2025), so CoVoST&nbsp;2 could not be built as planned</td><td>Probed alternatives; used a CoVoST&nbsp;2 mirror with embedded audio plus FLEURS joined to its English sentences by id</td></tr>
+  <tr><td>Kaggle lists at most 500 output files, so a dataset created from 849 loose wav files would have missed the rest</td><td>Packed audio into a zip and kept two output files per stage; checked file lists before publishing</td></tr>
+  <tr><td>Whisper through the Hugging Face pipeline ran out of memory, then ran more than 30 minutes without finishing</td><td>Rewrote it to call <code>generate</code> directly on length-sorted batches with progress prints: 256 s</td></tr>
+  <tr><td><code>unbabel-comet</code> pins <code>numpy&lt;2</code>; letting pip change numpy broke transformers and SciPy, and the COMET encoder assumed an older transformers return format</td><td>Installed COMET with <code>--no-deps</code> plus only the packages it needs, and patched the one encoder function to read named outputs</td></tr>
+  <tr><td>Kaggle allows one interactive GPU session; the author&rsquo;s computer restarted during a long run</td><td>Ran long jobs as saved notebook versions, which execute on Kaggle&rsquo;s servers, and stopped idle sessions</td></tr>
+  <tr><td>One synthetic clip was almost empty and distorted the worst-case list</td><td>Detected by the audio check, excluded, and all metrics recomputed (notebook&nbsp;07)</td></tr>
+</table>
+
+<!-- ============ APPENDIX B ============ -->
+<h1 id="appB">Appendix B. Worked examples of ASR-induced translation errors</h1>
+<p>Each row shows the Chinese reference, what the ASR system wrote, the English reference, Tower&rsquo;s translation of the <em>correct</em> text, and Tower&rsquo;s translation of the ASR output.</p>
+<table class="long tight">
+  <caption>Table B1. Selected cases from the 40 worst translation losses</caption>
+  <tr><th>Type</th><th>Chinese reference</th><th>ASR output</th><th>English reference</th><th>Translation of clean text</th><th>Translation of ASR output</th></tr>
+  <tr><td>Homophones in a technical term (Whisper)</td><td class="zh">其它铂基药物还包括顺铂和卡铂。</td><td class="zh">其他搏击药物还包括顺搏和卡搏</td><td>Other platinum based drugs include cisplatin and carboplatin.</td><td>Other platinum-based drugs include cisplatin and carboplatin.</td><td>Other combat drugs include sinupret and kampfer.</td></tr>
+  <tr><td>Homophones in a rare surname (Whisper)</td><td class="zh">钮姓是满族的常用姓氏之一。</td><td class="zh">扭心是满足的常用信使之一</td><td>The surname Niu is one of the common surnames in Manchu.</td><td>Zhu is one of the common surnames of the Manchu people.</td><td>Nausea is one of the common messengers of satisfaction.</td></tr>
+  <tr><td>Homophones in a botanical name (Paraformer)</td><td class="zh">南川绣线菊为蔷薇科绣线菊属下的一个种。</td><td class="zh">南川秀县局为蔷薇科秀县局属下的一个种</td><td>Spiraea rosthornii pritz is a member of Rosaceae family, Spiraea genus.</td><td>Nanchang convolvulus is a species of the genus Convolvulus in the rose family.</td><td>Nanchuan Xiang County Bureau is a subordinate of the Peony Bureau of Xiang County.</td></tr>
+  <tr><td>Missing punctuation, CER 0.0 (Paraformer)</td><td class="zh">我吃的亏还少吗？</td><td class="zh">我吃的亏还少吗</td><td>Didn&rsquo;t I suffer enough losses?</td><td>Have I suffered any losses?</td><td>Am I still losing out on eating this?</td></tr>
+  <tr><td>Common-word homophone (Paraformer)</td><td class="zh">又是一个付费的全民公测</td><td class="zh">又是一个付费的全民公厕</td><td>Another paid public beta.</td><td>Another paid public beta</td><td>Another public toilet that requires payment</td></tr>
+  <tr><td>Repetition loop (Whisper)</td><td class="zh">现任参议员、阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·柯克纳 &hellip;</td><td class="zh">&hellip; 克里斯蒂娜·克里斯蒂娜·克里斯蒂娜 &hellip; (repeated)</td><td>Current senator and Argentine First Lady Cristina Fernandez de Kirchner announced her presidential candidacy &hellip;</td><td>Argentine first lady and current senator Cristina Fernandez de Kirchner announced her candidacy &hellip;</td><td>The current senator, Argentina&rsquo;s first lady Cristina Fern&aacute;ndez de Kirchner Cristina Fern&aacute;ndez de Kirchner &hellip; (repeated)</td></tr>
+  <tr><td>Defective audio (both)</td><td class="zh">人们自古以来就知道金、银、铜等基本化学元素 &hellip;</td><td class="zh">Whisper: 《一切》; Paraformer: (empty)</td><td>People have known about basic chemical elements such as gold, silver, and copper from antiquity &hellip;</td><td>People have known about basic chemical elements such as gold, silver, and copper since ancient times &hellip;</td><td>Whisper: &ldquo;Everything&rdquo;; Paraformer: (empty)</td></tr>
+</table>
+
+<!-- ============ APPENDIX C ============ -->
+<h1 id="appC">Appendix C. Metric definitions and file inventory</h1>
+<h2>C.1 Metric definitions</h2>
+<ul>
+  <li><strong>CER.</strong> Reference and ASR text are converted to simplified Chinese (OpenCC <code>t2s</code>), lower-cased, and reduced to Chinese characters, Latin letters and digits (punctuation and spaces removed). CER = (substitutions + deletions + insertions) / number of reference characters. Corpus CER sums edits and reference characters over all sentences; per-sentence CER is used for the buckets.</li>
+  <li><strong>BLEU / chrF++.</strong> sacreBLEU corpus scores against the single English reference. chrF++ adds word bigrams to character n-grams (<code>word_order=2</code>).</li>
+  <li><strong>COMET-22.</strong> A neural metric trained on human quality judgements; given the source (the original Chinese sentence), the translation and the reference, it outputs a score near 0&ndash;1 (higher is better). Reported as the mean over sentences.</li>
+  <li><strong>Translation loss.</strong> Score of the clean-text translation minus score of the translation of the ASR transcript. The per-sentence COMET loss is the sentence-level version; the correlation in Section&nbsp;5.3 is Pearson&rsquo;s r between sentence CER and sentence COMET loss.</li>
+  <li><strong>CER buckets.</strong> Exact (CER&nbsp;=&nbsp;0), 0&ndash;5%, 5&ndash;15%, above 15%. Shares of total loss in Figure&nbsp;7 are computed as clips&nbsp;&times;&nbsp;mean loss per bucket and are therefore approximate.</li>
+</ul>
+<h2>C.2 Files delivered</h2>
+<table>
+  <caption>Table C1. Project files</caption>
+  <tr><th>Location</th><th>Contents</th></tr>
+  <tr><td><code>notebooks/01_datasets &hellip; 07_rescore_excl</code> (<code>.py</code> and <code>.ipynb</code>)</td><td>All pipeline code, one file per stage</td></tr>
+  <tr><td><code>tools/make_listening_page.py</code></td><td>Builds the offline listening page for TTS clips</td></tr>
+  <tr><td><code>report/</code></td><td>This report (<code>.pdf</code> and <code>.html</code>), the figure generator <code>make_figures.py</code> and the build script</td></tr>
+  <tr><td><code>results_summary.md</code></td><td>Plain-text summary of all measurements, including the 849-clip results</td></tr>
+  <tr><td>Kaggle (private)</td><td>Notebooks <code>01</code>&ndash;<code>07</code>; datasets <code>zh-en-manifest</code>, <code>zh-tts-audio</code>, <code>zh-asr-transcripts</code>, <code>zh-mt-outputs</code>; scoring outputs <code>manifest_scored.jsonl</code>, <code>scores_overall.csv</code>, <code>scores_by_cer_bucket.csv</code>, <code>worst_cases.csv</code>, <code>cer_vs_comet_drop.png</code>, <code>audio_check.csv</code>, <code>audio_flagged.csv</code></td></tr>
+</table>
+
+</body>
+</html>
